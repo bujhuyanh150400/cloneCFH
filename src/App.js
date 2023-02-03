@@ -1,24 +1,48 @@
-import logo from './logo.svg';
-import './App.css';
+import { Route, Routes } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+
+import Header from "./components/Header";
+import MainContainer from "./components/MainContainer";
+import CreateContainer from "./components/CreateContainer";
+import MenuContainer from "./components/MenuContainer";
+
+import { useEffect} from "react";
+import { useStateValue } from "./context/StateProvider";
+import { getAllItems } from "./utils/FirebaseFunction";
+import { actionType } from "./context/reducer";
 
 function App() {
+const [{items},dispatch] = useStateValue();
+
+const fetchData = async () =>{
+  await getAllItems().then(data=>{
+    dispatch({
+      type: actionType.SET_ITEMS,
+      items: data
+    })
+  });
+};
+
+useEffect(()=>{
+  fetchData();
+},[])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AnimatePresence exitBeforeEnter>
+      <div>
+        {/* Header */}
+        <Header />
+
+        {/* Main */}
+        <main className="">
+          <Routes>
+            <Route path="/*" element={<MainContainer />} />
+            <Route path="/createItem" element={<CreateContainer />} />
+            <Route path="/menu" element={<MenuContainer />}  />
+          </Routes>
+        </main>
+      </div>
+    </AnimatePresence>
   );
 }
 
